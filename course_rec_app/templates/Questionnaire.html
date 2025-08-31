@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Advisor - Questionnaire</title>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #3a6ea5;
+            --secondary-color: #ff6b6b;
+            --accent-color: #6a8caf;
+            --light-color: #f9f9f9;
+            --dark-color: #333;
+            --success-color: #28a745;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
+        }
+        
+        .logo a {
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        /* Questionnaire Section */
+        .questionnaire-section {
+            padding: 60px 0;
+        }
+        
+        .questionnaire-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .questionnaire-header {
+            padding: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+        
+        .questionnaire-header h2 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .questionnaire-content {
+            padding: 30px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .section-header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        
+        .section-header h3 {
+            color: var(--primary-color);
+            font-size: 1.6rem;
+        }
+        
+        .section-header p {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .question {
+            margin-bottom: 30px;
+        }
+        
+        .question h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .question p.mapping {
+            font-size: 0.9rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .subject-grades {
+    margin-top: 15px;
+        }
+
+        .subject-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .grades-display {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .grade-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .remove-grade {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+        }
+        
+        /* Form Elements */
+        .rating {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .rating-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .rating-item input[type="radio"] {
+            display: none;
+        }
+        
+        .rating-item label {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .rating-item input[type="radio"]:checked + label {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .rating-item span {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .option-item input[type="radio"],
+        .option-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: transparent;
+            color: var(--primary-color);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-disabled {
+            background-color: #e9ecef;
+            color: #888;
+            border: 2px solid #e9ecef;
+            cursor: not-allowed;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 80px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .social-links {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .social-links a {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                margin-top: 20px;
+            }
+            
+            .nav-links li {
+                margin: 0 15px;
+            }
+            
+            .user-info {
+                margin-top: 20px;
+            }
+            
+            .rating {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo"><a href="index.html">Course<span>Advisor</span></a></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Majors</a></li>
+                <li><a href="#">Resources</a></li>
+            </ul>
+            <div class="user-info">
+                <div class="avatar">{{ user.username[0] | upper }}</div>
+                <span>Welcome, {{ user.username }}</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Questionnaire Section -->
+    <section class="questionnaire-section">
+        <div class="container">
+            <div class="questionnaire-container">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                
+                <div class="questionnaire-header">
+                    <h2>Academic Course Finder</h2>
+                    <p>Answer the questions below to discover courses that match your unique profile</p>
+                </div>
+                
+                <div class="questionnaire-content">
+                    <form id="majorQuestionnaire">
+                        <!-- Personal Interests Section -->
+                        <div class="section active" data-section="personal-interests">
+                            <div class="section-header">
+                                <h3>Personal Interests</h3>
+                                <p>Tell us about your interests and passions to help us identify potential academic paths.</p>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>1. How interested are you in critical thinking and analyzing arguments?</h4>
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="critical_thinking" id="ct1" value="1" required>
+                                        <label for="ct1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="critical_thinking" id="ct2" value="2">
+                                        <label for="ct2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="critical_thinking" id="ct3" value="3">
+                                        <label for="ct3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="critical_thinking" id="ct4" value="4">
+                                        <label for="ct4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="critical_thinking" id="ct5" value="5">
+                                        <label for="ct5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>2. How much do you enjoy working with numbers and analyzing data?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="numbers_data" id="nd1" value="1" required>
+                                        <label for="nd1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="numbers_data" id="nd2" value="2">
+                                        <label for="nd2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="numbers_data" id="nd3" value="3">
+                                        <label for="nd3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="numbers_data" id="nd4" value="4">
+                                        <label for="nd4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="numbers_data" id="nd5" value="5">
+                                        <label for="nd5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>3. How interested are you in understanding social problems and creating solutions?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="social_problems" id="sp1" value="1" required>
+                                        <label for="sp1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="social_problems" id="sp2" value="2">
+                                        <label for="sp2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="social_problems" id="sp3" value="3">
+                                        <label for="sp3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="social_problems" id="sp4" value="4">
+                                        <label for="sp4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="social_problems" id="sp5" value="5">
+                                        <label for="sp5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            <div class="question">
+                                <h4>4. How interested are you in teaching and helping others learn?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="teaching_helping" id="Tp1" value="1" required>
+                                        <label for="Tp1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="teaching_helping" id="Tp2" value="2">
+                                        <label for="Tp2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="teaching_helping" id="Tp3" value="3">
+                                        <label for="Tp3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="teaching_helping" id="Tp4" value="4">
+                                        <label for="Tp4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="teaching_helping" id="Tp5" value="5">
+                                        <label for="Tp5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question">
+                                <h4>5. Do you enjoy understanding different cultures and human behaviors?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="different_cultures" id="cp1" value="1" required>
+                                        <label for="cp1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="different_cultures" id="cp2" value="2">
+                                        <label for="cp2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="different_cultures" id="cp3" value="3">
+                                        <label for="cp3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="different_cultures" id="cp4" value="4">
+                                        <label for="cp4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="different_cultures" id="cp5" value="5">
+                                        <label for="cp5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="question">
+                                <h4>6. How interested are you in environmental issues and sustainability?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="environmental_issues" id="ep1" value="1" required>
+                                        <label for="ep1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="environmental_issues" id="ep2" value="2">
+                                        <label for="ep2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="environmental_issues" id="ep3" value="3">
+                                        <label for="ep3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="environmental_issues" id="ep4" value="4">
+                                        <label for="ep4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="environmental_issues" id="ep5" value="5">
+                                        <label for="ep5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="question">
+                                <h4>7. How interested are you in global politics and international affairs?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="global_politics" id="pp1" value="1" required>
+                                        <label for="pp1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="global_politics" id="pp2" value="2">
+                                        <label for="pp2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="global_politics" id="pp3" value="3">
+                                        <label for="pp3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="global_politics" id="pp4" value="4">
+                                        <label for="pp4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="global_politics" id="pp5" value="5">
+                                        <label for="pp5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question">
+                                <h4>8. How much do you enjoy interacting with people and providing service?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="interacting_with_people" id="sep1" value="1" required>
+                                        <label for="sep1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="interacting_with_people" id="sep2" value="2">
+                                        <label for="sep2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="interacting_with_people" id="sep3" value="3">
+                                        <label for="sep3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="interacting_with_people" id="sep4" value="4">
+                                        <label for="sep4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="interacting_with_people" id="sep5" value="5">
+                                        <label for="sep5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question">
+                                <h4>9. How interested are you in religious or spiritual matters?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="religious_spiritual" id="Rp1" value="1" required>
+                                        <label for="Rp1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="religious_spiritual" id="Rp2" value="2">
+                                        <label for="Rp2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="religious_spiritual" id="Rp3" value="3">
+                                        <label for="Rp3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="religious_spiritual" id="Rp4" value="4">
+                                        <label for="Rp4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="religious_spiritual" id="Rp5" value="5">
+                                        <label for="Rp5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question">
+                                <h4>10. How interested are you in scientific research and experimentation?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="scientific_research" id="Scp1" value="1" required>
+                                        <label for="Scp1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="scientific_research" id="Scp2" value="2">
+                                        <label for="Scp2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="scientific_research" id="Scp3" value="3">
+                                        <label for="Scp3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="scientific_research" id="Scp4" value="4">
+                                        <label for="Scp4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="scientific_research" id="Scp5" value="5">
+                                        <label for="Scp5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="question">
+                                <h4>11. Do you enjoy organizing information and making it accessible to others?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="organizing_information" id="Ip1" value="1" required>
+                                        <label for="Ip1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="organizing_information" id="Ip2" value="2">
+                                        <label for="Ip2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="organizing_information" id="Ip3" value="3">
+                                        <label for="Ip3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="organizing_information" id="Ip4" value="4">
+                                        <label for="Ip4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="organizing_information" id="Ip5" value="5">
+                                        <label for="Ip5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="buttons">
+                                <button type="button" class="btn btn-disabled" id="prevBtn" disabled>Previous</button>
+                                <button type="button" class="btn btn-primary" id="nextBtn">Next Section</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Learning Preferences Section -->
+                        <div class="section" data-section="learning-preferences">
+                            <div class="section-header">
+                                <h3>Learning Preferences</h3>
+                                <p>Tell us about how you prefer to learn and approach problems.</p>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>12. Do you prefer working with:</h4>
+                                <div class="options">
+                                    
+                                    <div class="option-item">
+                                        <input type="radio" name="working_preference" id="wp1" value="abstract_concepts" required>
+                                        <label for="wp1">a) Abstract concepts and theories</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="working_preference" id="wp2" value="concrete_facts">
+                                        <label for="wp2">b) Concrete facts and practical applications</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="working_preference" id="wp3" value="both">
+                                        <label for="wp3">c) Both equally</label>
+                                    </div>
+                                </div>
+                            </div>
+                                
+                                
+                            <div class="question">
+                                <h4>13. Do you prefer:</h4>
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="radio" name="collaboration_preference" id="cp1" value="independent" required>
+                                        <label for="cp1">a) Working independently on projects</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="collaboration_preference" id="cp2" value="team_collaboration">
+                                        <label for="cp2">b) Collaborating with others in teams</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="collaboration_preference" id="cp3" value="mix">
+                                        <label for="cp3">c) A mix of both</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>14. In problem-solving, do you prefer:</h4>
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="radio" name="problem_solving" id="ps1" value="data_analysis" required>
+                                        <label for="ps1">a) Analyzing data and numbers</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="problem_solving" id="ps2" value="social_factors">
+                                        <label for="ps2">b) Thinking about people and social factors</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="problem_solving" id="ps3" value="combination">
+                                        <label for="ps3">c) A combination of both approaches</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="buttons">
+                                <button type="button" class="btn btn-secondary" id="prevBtn2">Previous</button>
+                                <button type="button" class="btn btn-primary" id="nextBtn2">Next Section</button>
+                            </div>
+                        </div>
+                        
+                        <!-- KCSE Subject Performance Section -->
+                        <div class="section" data-section="kcse-performance">
+                            <div class="section-header">
+                                <h3>KCSE Subject Performance</h3>
+                                <p>Tell us about your academic performance in high school.</p>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>15. Which KCSE subjects did you perform best in?</h4>
+                                
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="checkbox" name="best_subjects" id="bs1" value="Mathematics">
+                                        <label for="bs1">Mathematics</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="best_subjects" id="bs2" value="English">
+                                        <label for="bs2">English</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="best_subjects" id="bs3" value="Kiswahili">
+                                        <label for="bs3">Kiswahili</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="best_subjects" id="bs4" value="Sciences">
+                                        <label for="bs4">Sciences </label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="best_subjects" id="bs5" value="Humanities">
+                                        <label for="bs5">Humanities </label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="best_subjects" id="bs6" value="Technical">
+                                        <label for="bs6">Technical subjects</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>16. What was your overall KCSE grade?</h4>
+                                <p class="mapping">Used to determine eligibility for certain programs with minimum grade requirements</p>
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg1" value="A" >
+                                        <label for="kg1">A</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg2" value="A-">
+                                        <label for="kg2">A-</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg3" value="B+">
+                                        <label for="kg3">B+</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg4" value="B">
+                                        <label for="kg4">B</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg5" value="B-">
+                                        <label for="kg5">B-</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg6" value="C+">
+                                        <label for="kg6">C+</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg7" value="C">
+                                        <label for="kg7">C</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg8" value="C-">
+                                        <label for="kg8">C-</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg9" value="D+">
+                                        <label for="kg9">D+</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg10" value="D">
+                                        <label for="kg10">D</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="kcse_grade" id="kg11" value="D-">
+                                        <label for="kg11">D-</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Add to KCSE performance section -->
+                            <div class="question">
+                                <h4>17.For the subjects you performed best in,enter your KCSE subject grades:</h4>
+                             <div class="subject-grades">
+                                <div class="subject-input">
+                            <select name="subject" class="subject-select">
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Kiswahili">Kiswahili</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Religious studies">Religious studies</option>
+                            <option value="Geography">Geography</option>
+                            <option value="History">History</option>
+                            <option value="Business">Business</option>
+                            <option value="Computer studies">Computer Studies</option>
+                            <option value="Agriculture">Agriculture</option>
+                            <option value="French">French</option>
+
+
+                            
+                    
+                    </select>
+                     <select name="grade" class="grade-select">
+                     <option value="A">A</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B">B</option>
+                    <option value="B-">B-</option>
+                    <option value="C+">C+</option>
+                    <option value="C">C</option>
+                    <option value="C-">C-</option>
+                    <option value="D+">D+</option>
+                    <option value="D">D</option>
+                    <option value="D-">D-</option>
+                    <option value="E">E</option>
+
+                    
+                </select>
+                     <button type="button" class="add-subject">Add Subject</button>
+                 </div>
+                    <div class="grades-display"></div>
+                    </div>
+                </div>
+
+                            <div class="buttons">
+                                <button type="button" class="btn btn-secondary" id="prevBtn3">Previous</button>
+                                <button type="button" class="btn btn-primary" id="nextBtn3">Next Section</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Personality Traits Section -->
+                        <div class="section" data-section="personality-traits">
+                            <div class="section-header">
+                                <h3>Personality Traits</h3>
+                                <p>Help us understand your personal approach and style.</p>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>18. Which best describes your approach to problems?</h4>
+                                
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="radio" name="problem_approach" id="pa1" value="analytical" >
+                                        <label for="pa1">a) Analytical </label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="problem_approach" id="pa2" value="caring">
+                                        <label for="pa2">b) Caring </label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="problem_approach" id="pa3" value="creative">
+                                        <label for="pa3">c) Creative </label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="problem_approach" id="pa4" value="practical">
+                                        <label for="pa4">d) Practical </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>19. How comfortable are you with public speaking?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="public_speaking" id="public_s1" value="1" >
+                                        <label for="public_s1">1</label>
+                                        <span>Not at all</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="public_speaking" id="public_s2" value="2">
+                                        <label for="public_s2">2</label>
+                                        <span>Slightly</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="public_speaking" id="public_s3" value="3">
+                                        <label for="public_s3">3</label>
+                                        <span>Moderately</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="public_speaking" id="public_s4" value="4">
+                                        <label for="public_s4">4</label>
+                                        <span>Very</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="public_speaking" id="public_s5" value="5">
+                                        <label for="public_s5">5</label>
+                                        <span>Extremely</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>20. How do you feel about working in high-pressure situations?</h4>
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="high_pressure" id="hp1" value="1">
+                                        <label for="hp1">1</label>
+                                        <span>Avoid them</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="high_pressure" id="hp2" value="2">
+                                        <label for="hp2">2</label>
+                                        <span></span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="high_pressure" id="hp3" value="3">
+                                        <label for="hp3">3</label>
+                                        <span>Neutral</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="high_pressure" id="hp4" value="4">
+                                        <label for="hp4">4</label>
+                                        <span></span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="high_pressure" id="hp5" value="5">
+                                        <label for="hp5">5</label>
+                                        <span>Thrive in them</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>21. How important is it for you to have a job that directly helps others?</h4>
+                                
+                                <div class="rating">
+                                    <div class="rating-item">
+                                        <input type="radio" name="helping_others" id="ho1" value="1" >
+                                        <label for="ho1">1</label>
+                                        <span>Not important</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="helping_others" id="ho2" value="2">
+                                        <label for="ho2">2</label>
+                                        <span></span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="helping_others" id="ho3" value="3">
+                                        <label for="ho3">3</label>
+                                        <span>Somewhat</span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="helping_others" id="ho4" value="4">
+                                        <label for="ho4">4</label>
+                                        <span></span>
+                                    </div>
+                                    <div class="rating-item">
+                                        <input type="radio" name="helping_others" id="ho5" value="5">
+                                        <label for="ho5">5</label>
+                                        <span>Very important</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="buttons">
+                                <button type="button" class="btn btn-secondary" id="prevBtn4">Previous</button>
+                                <button type="button" class="btn btn-primary" id="nextBtn4">Next Section</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Career Goals Section -->
+                        <div class="section" data-section="career-goals">
+                            <div class="section-header">
+                                <h3>Career Goals</h3>
+                                <p>Help us understand your career aspirations and professional values.</p>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>22. Which of these career values is most important to you?</h4>
+                                <p class="mapping">
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="radio" name="career_values" id="cv1" value="financial" >
+                                        <label for="cv1">a) Financial security</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="career_values" id="cv2" value="helping">
+                                        <label for="cv2">b) Helping others</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="career_values" id="cv3" value="intellectual">
+                                        <label for="cv3">c) Intellectual challenge</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="career_values" id="cv4" value="balance">
+                                        <label for="cv4">d) Work-life balance</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="career_values" id="cv5" value="variety">
+                                        <label for="cv5">e) Adventure and variety</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>23. Are you interested in working:</h4>
+                                <p class="mapping">Helps refine recommendations based on career path</p>
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="checkbox" name="work_sector" id="ws1" value="government">
+                                        <label for="ws1">In government institutions</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="work_sector" id="ws2" value="non_profit">
+                                        <label for="ws2">For non-profit organizations</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="work_sector" id="ws3" value="private">
+                                        <label for="ws3">In the private sector</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="work_sector" id="ws4" value="academic">
+                                        <label for="ws4">In academic institutions</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="work_sector" id="ws5" value="religious">
+                                        <label for="ws5">In religious institutions</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="checkbox" name="work_sector" id="ws6" value="self">
+                                        <label for="ws6">As a self-employed professional</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <h4>24. Are you interested in further studies after your undergraduate degree?</h4>
+                                
+                                <div class="options">
+                                    <div class="option-item">
+                                        <input type="radio" name="further_studies" id="fs1" value="yes" >
+                                        <label for="fs1">Yes, definitely</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="further_studies" id="fs2" value="maybe">
+                                        <label for="fs2">Maybe</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" name="further_studies" id="fs3" value="no">
+                                        <label for="fs3">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="buttons">
+                                <button type="button" class="btn btn-secondary" id="prevBtn5">Previous</button>
+                                <button type="submit" class="btn btn-primary" id="submitBtn">get recommendation</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="social-links">
+                <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#"><i  class="fa-brands fa-tiktok"></i></a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+            <p class="copyright">© 2025 CourseAdvisor. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script src="static\questionnaire.js"></script>
+    </body>
+    </html>
